@@ -10,8 +10,11 @@ Before you start, make sure you have:
 
 1. **Node.js** installed (version 18 or higher recommended)
 2. **pnpm** installed globally: `npm install -g pnpm`
+3. **PostgreSQL** database running (version 16 or higher recommended)
 
 ## First Time Setup
+
+### 1. Install Dependencies
 
 When you first clone or download this project, you need to install all the dependencies:
 
@@ -20,6 +23,42 @@ pnpm install
 ```
 
 This command reads the `package.json` file and downloads all the required packages into a `node_modules` folder. You only need to run this once, or whenever new dependencies are added to the project.
+
+### 2. Environment Configuration
+
+Create your environment variables file by copying the example:
+
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file with your database configuration:
+
+```bash
+# Database connection string
+DATABASE_URL=postgres://username:password@host:port/database_name
+```
+
+**Examples:**
+- Local PostgreSQL: `DATABASE_URL=postgres://postgres:postgres@localhost:5432/todos`
+- Docker PostgreSQL: `DATABASE_URL=postgres://postgres:postgres@localhost:5432/todos`
+- Cloud database: `DATABASE_URL=postgres://user:pass@db.example.com:5432/todos`
+
+**Important:** Never commit your `.env` file to version control as it contains sensitive information.
+
+### 3. Database Setup
+
+After configuring your environment variables, set up your database schema:
+
+```bash
+# Generate migration files (if needed)
+pnpm db:generate
+
+# Apply migrations to your database
+pnpm db:push
+```
+
+**Note:** For development, `pnpm db:push` is usually sufficient as it directly syncs your schema with the database.
 
 # Available Commands
 
@@ -142,6 +181,47 @@ These commands manage your database schema and migrations using Drizzle ORM:
 **Prerequisites:** Must run `pnpm install` first  
 **What happens:** Opens a web interface to browse your database tables
 
+## Environment Variables
+
+This application uses environment variables for configuration. All environment variables should be defined in a `.env` file in the root directory.
+
+### Required Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgres://postgres:postgres@localhost:5432/todos` |
+
+### Environment Variable Format
+
+The `DATABASE_URL` follows this format:
+```
+postgres://[username]:[password]@[host]:[port]/[database_name]
+```
+
+### Environment Setup Examples
+
+**Local Development:**
+```bash
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/todos
+```
+
+**Docker PostgreSQL:**
+```bash
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/todos
+```
+
+**Production (example with cloud database):**
+```bash
+DATABASE_URL=postgres://myuser:mypassword@db.example.com:5432/todos_production
+```
+
+### Security Notes
+
+- Never commit your `.env` file to version control
+- The `.env` file is already in `.gitignore`
+- Use strong passwords for production databases
+- Consider using connection pooling for production environments
+
 ## Code Quality Commands
 
 ### `pnpm lint`
@@ -180,6 +260,9 @@ For beginners, here's the usual order of commands:
 
 ```bash
 pnpm install
+cp .env.example .env
+# Edit .env with your database configuration
+pnpm db:push
 ```
 
 2. **Daily development:**
@@ -214,4 +297,60 @@ pnpm db:studio
 ```bash
 pnpm build
 pnpm start  # to test the build
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you encounter database connection errors, check the following:
+
+1. **PostgreSQL is running:**
+   ```bash
+   # Check if PostgreSQL is running (macOS/Linux)
+   pg_isready -h localhost -p 5432
+   
+   # Or check running processes
+   ps aux | grep postgres
+   ```
+
+2. **Environment variables are correct:**
+   ```bash
+   # Check your .env file exists and has correct format
+   cat .env
+   ```
+
+3. **Database exists:**
+   ```bash
+   # Connect to PostgreSQL and check if database exists
+   psql -h localhost -U postgres -l
+   ```
+
+4. **Network connectivity (for cloud databases):**
+   ```bash
+   # Test connection to remote database
+   pg_isready -h your-db-host.com -p 5432
+   ```
+
+### Common Error Messages
+
+- **"database does not exist"**: Create the database or update `DATABASE_URL`
+- **"password authentication failed"**: Check username/password in `DATABASE_URL`
+- **"connection refused"**: PostgreSQL is not running or wrong host/port
+- **"too many connections"**: Database has reached connection limit
+
+### Docker PostgreSQL Quick Commands
+
+```bash
+# Start existing container
+docker start todo-postgres
+
+# Stop container
+docker stop todo-postgres
+
+# Remove container (data will be lost)
+docker rm todo-postgres
+
+# View container logs
+docker logs todo-postgres
 ```
