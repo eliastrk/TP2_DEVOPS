@@ -99,7 +99,7 @@ jobs:
       - name: Run ESLint
         run: pnpm lint
   
-  doc-build-check:
+  docs-check:
     runs-on: ubuntu-latest
     needs: linter
 
