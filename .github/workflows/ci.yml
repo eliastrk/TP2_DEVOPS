@@ -97,28 +97,6 @@ jobs:
       - name: Run ESLint
         run: pnpm lint
   
-  doc-build-check:
-    runs-on: ubuntu-latest
-    needs: linter
-
-    steps:
-      - name: Fetch repository
-        uses: actions/checkout@v4
-
-      - name: Configure Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Enable pnpm
-        run: npm install -g pnpm
-
-      - name: Install project dependencies
-        run: pnpm install
-
-      - name: Build project documentation (Storybook)
-        run: pnpm build-storybook --quiet
-  
   docker-build:
     runs-on: ubuntu-latest
     needs: docs-check
