@@ -120,6 +120,7 @@ jobs:
 
       - name: Build project documentation (Storybook)
         run: pnpm build-storybook --quiet
+
   
   docker-build:
     runs-on: ubuntu-latest
